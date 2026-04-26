@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Oritseweyinmi Agbaga</title>
+<style>
+:root{
+  --cyan:#00f5ff;--purple:#a855f7;--pink:#f72585;--yellow:#ffd60a;--green:#06ffa5;
+  --bg:#07070f;--text:#f0f0f0;--muted:#6b7280;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;cursor:none;overflow-x:hidden;}
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-thumb{background:linear-gradient(var(--cyan),var(--purple));border-radius:2px;}
+
+#cursor{position:fixed;width:12px;height:12px;background:var(--cyan);border-radius:50%;pointer-events:none;z-index:9999;transition:transform .15s,background .3s;mix-blend-mode:difference;}
+#cursor-ring{position:fixed;width:40px;height:40px;border:1px solid rgba(0,245,255,.4);border-radius:50%;pointer-events:none;z-index:9998;transition:all .25s ease;}
+
+nav{position:fixed;top:0;width:100%;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:1.2rem 3rem;mix-blend-mode:difference;}
+.logo{font-size:1.1rem;font-weight:900;letter-spacing:-.02em;color:#fff;}
+.nav-links{display:flex;gap:2.5rem;list-style:none;}
+.nav-links a{color:rgba(255,255,255,.5);text-decoration:none;font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;transition:.3s;position:relative;}
+.nav-links a::after{content:'';position:absolute;bottom:-4px;left:0;width:0;height:1px;background:var(--cyan);transition:.3s;}
+.nav-links a:hover{color:#fff;}
+.nav-links a:hover::after{width:100%;}
+
+/* HERO */
+#hero{height:100vh;display:grid;grid-template-columns:1fr 1fr;position:relative;overflow:hidden;}
+.hero-left{display:flex;flex-direction:column;justify-content:center;padding:8rem 3rem 4rem;position:relative;z-index:2;}
+.hero-eyebrow{font-size:.75rem;letter-spacing:.25em;text-transform:uppercase;color:var(--cyan);margin-bottom:2rem;display:flex;align-items:center;gap:.8rem;}
+.hero-eyebrow::before{content:'';display:inline-block;width:30px;height:1px;background:var(--cyan);}
+.hero-name{font-size:clamp(2.4rem,5.5vw,5rem);font-weight:900;line-height:.95;letter-spacing:-.04em;margin-bottom:1.5rem;}
+.hero-name .outline{-webkit-text-stroke:1px rgba(255,255,255,.3);color:transparent;}
+.hero-name .filled{color:#fff;}
+.hero-desc{color:var(--muted);font-size:.97rem;line-height:1.8;max-width:400px;margin-bottom:3rem;border-left:2px solid var(--purple);padding-left:1rem;}
+.hero-desc em{color:var(--cyan);font-style:normal;}
+.hero-cta{display:flex;gap:1rem;align-items:center;}
+.btn-glitch{position:relative;padding:.9rem 2.2rem;background:var(--cyan);color:#000;font-weight:800;font-size:.9rem;letter-spacing:.05em;text-decoration:none;clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,12px 100%,0 calc(100% - 12px));transition:.3s;}
+.btn-glitch:hover{background:var(--purple);color:#fff;transform:translate(-3px,-3px);box-shadow:6px 6px 0 var(--cyan);}
+.hero-right{position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.hero-orb{position:absolute;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(168,85,247,.4),rgba(0,245,255,.15) 50%,transparent 70%);filter:blur(40px);animation:orb-move 6s ease-in-out infinite;}
+@keyframes orb-move{0%,100%{transform:translate(0,0) scale(1);}50%{transform:translate(40px,-40px) scale(1.1);}}
+.hero-card{position:relative;z-index:2;width:270px;aspect-ratio:.75;background:linear-gradient(135deg,rgba(255,255,255,.07),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.1);border-radius:24px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.8rem;backdrop-filter:blur(20px);padding:1.5rem;animation:card-float 5s ease-in-out infinite;}
+@keyframes card-float{0%,100%{transform:translateY(0) rotate(-2deg);}50%{transform:translateY(-20px) rotate(1deg);}}
+.card-avatar{width:90px;height:90px;border-radius:50%;background:linear-gradient(135deg,var(--purple),var(--cyan));display:flex;align-items:center;justify-content:center;font-size:2.2rem;border:3px solid rgba(255,255,255,.1);}
+.card-name{font-size:.95rem;font-weight:800;text-align:center;line-height:1.2;}
+.card-role{font-size:.72rem;color:var(--cyan);letter-spacing:.08em;text-align:center;}
+.card-loc{font-size:.7rem;color:var(--muted);}
+.card-divider{width:80%;height:1px;background:rgba(255,255,255,.08);}
+.card-badges{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;}
+.card-badge{padding:.2rem .6rem;border-radius:999px;font-size:.62rem;font-weight:700;background:rgba(0,245,255,.1);color:var(--cyan);border:1px solid rgba(0,245,255,.2);}
+.card-badge.b2{background:rgba(168,85,247,.1);color:var(--purple);border-color:rgba(168,85,247,.2);}
+.card-badge.b3{background:rgba(6,255,165,.1);color:var(--green);border-color:rgba(6,255,165,.2);}
+
+/* MARQUEE */
+.marquee-wrap{background:var(--purple);padding:.6rem 0;overflow:hidden;position:relative;z-index:2;}
+.marquee-track{display:flex;animation:marquee 22s linear infinite;width:max-content;}
+.marquee-item{white-space:nowrap;padding:0 2rem;font-size:.78rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:rgba(0,0,0,.7);}
+@keyframes marquee{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+
+/* ABOUT */
+#about{min-height:100vh;display:grid;grid-template-columns:1fr 1fr;position:relative;overflow:hidden;}
+.about-left{background:#0e0e1a;display:flex;flex-direction:column;justify-content:center;padding:6rem 4rem;position:relative;overflow:hidden;}
+.about-tag{font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--pink);margin-bottom:1.5rem;}
+.about-left h2{font-size:clamp(2rem,4vw,3.5rem);font-weight:900;line-height:1;letter-spacing:-.03em;margin-bottom:2rem;}
+.about-left p{color:var(--muted);line-height:1.9;font-size:.93rem;margin-bottom:1rem;}
+.about-left p em{color:var(--text);font-style:normal;}
+.fun-facts{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:2rem;}
+.fun-fact{padding:1rem;border:1px solid rgba(255,255,255,.07);border-radius:12px;background:rgba(255,255,255,.03);}
+.fun-fact-n{font-size:1.8rem;font-weight:900;background:linear-gradient(135deg,var(--cyan),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.fun-fact-l{font-size:.72rem;color:var(--muted);margin-top:.2rem;}
+.about-right{position:relative;overflow:hidden;background:linear-gradient(160deg,rgba(168,85,247,.15),rgba(0,245,255,.05));}
+.about-right-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.5rem;padding:3rem;}
+.origin-tag{padding:.5rem 1.5rem;border:1px solid rgba(255,214,10,.3);border-radius:999px;color:var(--yellow);font-size:.8rem;letter-spacing:.1em;}
+.profile-frame{width:300px;height:360px;position:relative;}
+.profile-frame::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--purple),var(--cyan));border-radius:2rem;transform:rotate(4deg);opacity:.25;}
+.profile-inner{position:absolute;inset:0;background:linear-gradient(135deg,rgba(168,85,247,.35),rgba(59,130,246,.25));border-radius:2rem;border:1px solid rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:.5rem;font-size:3.5rem;}
+.profile-inner span{font-size:.8rem;color:var(--muted);letter-spacing:.05em;}
+.dual-identity{display:flex;gap:1rem;}
+.identity-pill{padding:.5rem 1rem;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:999px;font-size:.75rem;color:var(--muted);}
+
+/* EDUCATION */
+#education{padding:6rem 2rem;max-width:1100px;margin:0 auto;}
+.edu-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:4rem;}
+.edu-header h2{font-size:clamp(2.5rem,5vw,4rem);font-weight:900;letter-spacing:-.04em;line-height:1;}
+.edu-header h2 em{font-style:normal;color:var(--cyan);}
+.edu-count{font-size:5rem;font-weight:900;color:rgba(255,255,255,.05);line-height:1;}
+.edu-cards{display:grid;gap:1px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.06);border-radius:20px;overflow:hidden;}
+.edu-card{background:var(--bg);padding:2rem 2.5rem;display:grid;grid-template-columns:60px 1fr auto;gap:2rem;align-items:start;transition:.3s;cursor:default;}
+.edu-card:hover{background:#0d0d1a;}
+.edu-num{font-size:2.8rem;font-weight:900;color:rgba(255,255,255,.05);line-height:1;transition:.3s;}
+.edu-card:hover .edu-num{color:var(--cyan);}
+.edu-body .degree{font-size:1.05rem;font-weight:700;margin-bottom:.3rem;}
+.edu-body .institution{color:var(--purple);font-size:.85rem;margin-bottom:.5rem;}
+.edu-body p{color:var(--muted);font-size:.87rem;line-height:1.7;}
+.edu-period{font-size:.72rem;color:var(--muted);letter-spacing:.06em;white-space:nowrap;padding-top:.4rem;text-align:right;}
+.cert-grid{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.8rem;}
+.cert-chip{padding:.25rem .7rem;border-radius:6px;font-size:.72rem;font-weight:700;background:rgba(255,214,10,.08);color:var(--yellow);border:1px solid rgba(255,214,10,.2);}
+
+/* EXPERIENCE */
+#experience{background:#090912;padding:6rem 2rem;position:relative;overflow:hidden;}
+#experience::before{content:'EXP';position:absolute;right:-3rem;top:50%;transform:translateY(-50%);font-size:18rem;font-weight:900;color:rgba(255,255,255,.02);letter-spacing:-.05em;pointer-events:none;}
+.exp-inner{max-width:1100px;margin:0 auto;}
+.exp-header{margin-bottom:4rem;}
+.exp-header .eyebrow{font-size:.72rem;color:var(--yellow);letter-spacing:.2em;text-transform:uppercase;margin-bottom:1rem;}
+.exp-header h2{font-size:clamp(2.5rem,5vw,4rem);font-weight:900;letter-spacing:-.04em;line-height:1;}
+.exp-list{display:flex;flex-direction:column;}
+.exp-item{display:grid;grid-template-columns:1fr 3fr;gap:3rem;padding:2.2rem 0;border-bottom:1px solid rgba(255,255,255,.05);transition:.4s;position:relative;}
+.exp-item::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,var(--purple),var(--cyan));opacity:0;transition:.3s;}
+.exp-item:hover::before{opacity:1;}
+.exp-item:hover{padding-left:1.5rem;}
+.exp-meta .role{font-size:1rem;font-weight:700;margin-bottom:.4rem;line-height:1.3;}
+.exp-meta .period{font-size:.75rem;color:var(--muted);}
+.exp-meta .type{display:inline-block;margin-top:.5rem;padding:.15rem .6rem;border-radius:4px;font-size:.65rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;}
+.t-eng{background:rgba(0,245,255,.1);color:var(--cyan);}
+.t-creative{background:rgba(168,85,247,.1);color:var(--purple);}
+.t-event{background:rgba(255,214,10,.1);color:var(--yellow);}
+.t-vol{background:rgba(6,255,165,.1);color:var(--green);}
+.exp-details .company{color:var(--cyan);font-size:.87rem;font-weight:600;margin-bottom:.8rem;}
+.exp-details ul{list-style:none;}
+.exp-details ul li{color:var(--muted);font-size:.88rem;padding:.3rem 0;padding-left:1.5rem;position:relative;line-height:1.7;}
+.exp-details ul li::before{content:'→';position:absolute;left:0;color:var(--purple);}
+
+/* SKILLS */
+#skills{padding:6rem 2rem;}
+.skills-inner{max-width:1100px;margin:0 auto;}
+.skills-top{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:start;margin-bottom:3rem;}
+.skills-heading h2{font-size:clamp(2.5rem,5vw,4rem);font-weight:900;letter-spacing:-.04em;line-height:1;margin-bottom:1rem;}
+.skills-heading h2 em{font-style:normal;color:var(--pink);}
+.skills-heading p{color:var(--muted);font-size:.9rem;line-height:1.8;}
+.sk-groups{display:flex;flex-direction:column;gap:1.5rem;}
+.sk-group-label{font-size:.7rem;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:.7rem;}
+.sk-row{display:flex;flex-wrap:wrap;gap:.6rem;}
+.sk{padding:.55rem 1.2rem;border-radius:999px;font-size:.82rem;font-weight:600;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);cursor:default;transition:.4s;}
+.sk:hover{transform:scale(1.08) translateY(-4px);box-shadow:0 8px 32px rgba(0,245,255,.2);}
+.sk-a{border-color:rgba(0,245,255,.4);color:var(--cyan);}
+.sk-b{border-color:rgba(168,85,247,.4);color:var(--purple);}
+.sk-c{border-color:rgba(247,37,133,.4);color:var(--pink);}
+.sk-d{border-color:rgba(255,214,10,.4);color:var(--yellow);}
+.sk-e{border-color:rgba(6,255,165,.4);color:var(--green);}
+
+/* PROJECTS */
+#projects{background:#090912;padding:6rem 2rem;}
+.proj-inner{max-width:1100px;margin:0 auto;}
+.proj-header{margin-bottom:4rem;}
+.proj-header .eyebrow{font-size:.72rem;color:var(--cyan);letter-spacing:.2em;text-transform:uppercase;margin-bottom:1rem;}
+.proj-header h2{font-size:clamp(2.5rem,5vw,4rem);font-weight:900;letter-spacing:-.04em;line-height:1;}
+.proj-header h2 em{font-style:normal;color:var(--purple);}
+.proj-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;}
+.proj-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:20px;overflow:hidden;transition:.4s;cursor:default;position:relative;}
+.proj-card:hover{border-color:rgba(0,245,255,.25);transform:translateY(-6px);box-shadow:0 20px 60px rgba(0,0,0,.5);}
+.proj-card.featured{grid-column:span 2;}
+.proj-banner{height:180px;display:flex;align-items:center;justify-content:center;font-size:3.5rem;overflow:hidden;}
+.proj-card.featured .proj-banner{height:220px;font-size:4.5rem;}
+.pb1{background:linear-gradient(135deg,rgba(0,245,255,.2),rgba(168,85,247,.15));}
+.pb2{background:linear-gradient(135deg,rgba(247,37,133,.2),rgba(168,85,247,.15));}
+.pb3{background:linear-gradient(135deg,rgba(255,214,10,.15),rgba(0,245,255,.1));}
+.proj-info{padding:1.5rem;}
+.proj-info h3{font-size:1.05rem;font-weight:800;margin-bottom:.5rem;}
+.proj-info p{color:var(--muted);font-size:.86rem;line-height:1.7;margin-bottom:1rem;}
+.proj-stack{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:1rem;}
+.proj-tag{padding:.22rem .65rem;border-radius:6px;font-size:.7rem;font-weight:700;}
+.pt-a{background:rgba(0,245,255,.1);color:var(--cyan);}
+.pt-b{background:rgba(168,85,247,.1);color:var(--purple);}
+.pt-c{background:rgba(255,214,10,.1);color:var(--yellow);}
+.proj-num{position:absolute;top:.8rem;right:1rem;font-size:3.5rem;font-weight:900;color:rgba(255,255,255,.04);line-height:1;}
+.proj-links{display:flex;gap:1rem;}
+.proj-link{font-size:.8rem;color:var(--muted);text-decoration:none;display:flex;align-items:center;gap:.3rem;transition:.2s;}
+.proj-link:hover{color:var(--cyan);}
+
+/* CONTACT */
+#contact{padding:6rem 2rem;position:relative;overflow:hidden;}
+#contact::before{content:'HI';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:22rem;font-weight:900;color:rgba(255,255,255,.02);pointer-events:none;letter-spacing:-.05em;}
+.contact-inner{max-width:900px;margin:0 auto;text-align:center;position:relative;z-index:2;}
+.contact-inner .eyebrow{font-size:.72rem;color:var(--cyan);letter-spacing:.2em;text-transform:uppercase;margin-bottom:1.5rem;}
+.contact-inner h2{font-size:clamp(2.5rem,6vw,4.5rem);font-weight:900;letter-spacing:-.04em;line-height:.95;margin-bottom:1.5rem;}
+.contact-inner h2 .accent{color:var(--cyan);}
+.contact-inner p{color:var(--muted);font-size:.97rem;line-height:1.8;max-width:500px;margin:0 auto 3rem;}
+.contact-links{display:flex;justify-content:center;gap:1.2rem;flex-wrap:wrap;margin-bottom:3rem;}
+.contact-pill{display:flex;align-items:center;gap:.6rem;padding:.75rem 1.5rem;border:1px solid rgba(255,255,255,.1);border-radius:999px;color:var(--text);text-decoration:none;font-size:.85rem;transition:.3s;background:rgba(255,255,255,.03);}
+.contact-pill:hover{border-color:var(--cyan);color:var(--cyan);background:rgba(0,245,255,.05);transform:translateY(-3px);}
+.contact-form{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:24px;padding:2.5rem;text-align:left;display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+.cf-full{grid-column:span 2;}
+.cf-label{display:block;font-size:.72rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.5rem;}
+.cf-input{width:100%;padding:.85rem 1.1rem;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:10px;color:var(--text);font-size:.9rem;transition:.3s;font-family:inherit;}
+.cf-input:focus{outline:none;border-color:var(--cyan);background:rgba(0,245,255,.04);}
+textarea.cf-input{min-height:100px;resize:vertical;}
+
+footer{border-top:1px solid rgba(255,255,255,.06);padding:2rem 3rem;display:flex;justify-content:space-between;align-items:center;}
+.footer-logo{font-weight:900;font-size:1.1rem;letter-spacing:-.02em;}
+footer p{color:var(--muted);font-size:.8rem;}
+
+.reveal{opacity:0;transform:translateY(40px);transition:.8s cubic-bezier(.16,1,.3,1);}
+.reveal.in{opacity:1;transform:translateY(0);}
+
+@media(max-width:900px){
+  #hero,#about{grid-template-columns:1fr;}
+  .hero-right,.about-right{display:none;}
+  .proj-grid{grid-template-columns:1fr;}
+  .proj-card.featured{grid-column:span 1;}
+  nav{padding:1rem 1.5rem;}
+  .nav-links{gap:1.2rem;}
+  .exp-item,.edu-card,.skills-top{grid-template-columns:1fr;gap:.8rem;}
+  .contact-form{grid-template-columns:1fr;}
+  .cf-full{grid-column:span 1;}
+  footer{flex-direction:column;gap:1rem;text-align:center;}
+}
+</style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<nav>
+  <div class="logo">OA.</div>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#education">Education</a></li>
+    <li><a href="#experience">Experience</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-left">
+    <div class="hero-eyebrow">Mechanical Engineer · Creator · Problem Solver</div>
+    <h1 class="hero-name" style="font-size:clamp(1.6rem,3.8vw,3.8rem);white-space:nowrap;">
+      <span class="filled">Oritseweyinmi Agbaga</span>
+    </h1>
+    <p class="hero-desc">Engineering isn't just numbers and equations to me — it's about <em>solving real problems</em> and making things work. From CAD models to cinematic frames, I build with both logic and vision.</p>
+    <div class="hero-cta">
+      <a href="#projects" class="btn-glitch">See My Work</a>
+      <a href="#contact" style="color:var(--muted);text-decoration:none;font-size:.85rem;letter-spacing:.05em;transition:.3s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='var(--muted)'">Let's connect →</a>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="hero-orb"></div>
+    <div class="hero-card">
+      <div class="card-avatar">⚙️</div>
+      <div class="card-name">Oritseweyinmi<br>Agbaga</div>
+      <div class="card-role">BEng Mechanical Engineering</div>
+      <div class="card-loc">📍 Sheffield, UK · from Lagos, NG</div>
+      <div class="card-divider"></div>
+      <div class="card-badges">
+        <span class="card-badge">CAD / SolidWorks</span>
+        <span class="card-badge b2">MATLAB</span>
+        <span class="card-badge b3">Cinematography</span>
+        <span class="card-badge">Industrial Placement</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+  <div class="marquee-track" id="marquee"></div>
+</div>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="about-left reveal">
+    <div class="about-tag">// who I am</div>
+    <h2>Engineer.<br>Creator.<br>Go-Getter.</h2>
+    <p>I'm a <em>BEng Mechanical Engineering</em> student at the University of Hull, currently on industrial placement. Born and raised in <em>Lagos, Nigeria</em>, I brought that same energy and ambition to the UK — and I haven't stopped since.</p>
+    <p>Whether I'm applying engineering principles on placement, capturing moments through a lens, or supporting hundreds of graduates at ceremonies — I throw myself into every opportunity. Each experience sharpens a different part of me: <em>teamwork, resilience, creativity, and calm under pressure.</em></p>
+    <div class="fun-facts">
+      <div class="fun-fact"><div class="fun-fact-n">2027</div><div class="fun-fact-l">Expected graduation</div></div>
+      <div class="fun-fact"><div class="fun-fact-n">5+</div><div class="fun-fact-l">Roles & experiences</div></div>
+      <div class="fun-fact"><div class="fun-fact-n">🌍</div><div class="fun-fact-l">Lagos → Sheffield</div></div>
+      <div class="fun-fact"><div class="fun-fact-n">📸</div><div class="fun-fact-l">Trained photographer</div></div>
+    </div>
+  </div>
+  <div class="about-right">
+    <div class="about-right-inner">
+      <div class="origin-tag">🇳🇬 Lagos → Sheffield 🇬🇧</div>
+      <div class="profile-frame">
+        <div class="profile-inner">👤<span>Your Photo Here</span></div>
+      </div>
+      <div class="dual-identity">
+        <div class="identity-pill">⚙️ Engineer</div>
+        <div class="identity-pill">📸 Photographer</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EDUCATION -->
+<section id="education">
+  <div class="edu-header reveal">
+    <h2>My<br><em>Education</em></h2>
+    <div class="edu-count">03</div>
+  </div>
+  <div class="edu-cards reveal">
+    <div class="edu-card">
+      <div class="edu-num">01</div>
+      <div class="edu-body">
+        <div class="degree">🎓 BEng Mechanical Engineering (Industrial Placement)</div>
+        <div class="institution">University of Hull, UK</div>
+        <p>Core study spanning engineering design, thermodynamics, CAD, simulation, and manufacturing. Currently on a year-long industrial placement applying theory in a live engineering environment. Returning to complete final year in 2026.</p>
+      </div>
+      <div class="edu-period">Sept 2023 – May 2027<br><span style="color:var(--cyan);font-weight:700;">In Progress</span></div>
+    </div>
+    <div class="edu-card">
+      <div class="edu-num">02</div>
+      <div class="edu-body">
+        <div class="degree">📘 WASSCE — West African Senior School Certificate</div>
+        <div class="institution">Learningfield Secondary School, Lagos, Nigeria</div>
+        <p>Completed secondary education in Lagos, building a solid academic foundation before pursuing engineering studies in the UK.</p>
+      </div>
+      <div class="edu-period">Completed</div>
+    </div>
+    <div class="edu-card">
+      <div class="edu-num">03</div>
+      <div class="edu-body">
+        <div class="degree">📜 Certifications & Professional Training</div>
+        <div class="institution">Various Platforms</div>
+        <p>Committed to continuous growth beyond the lecture hall — from engineering safety to AI literacy.</p>
+        <div class="cert-grid">
+          <span class="cert-chip">IOSH Health & Safety</span>
+          <span class="cert-chip">AutoCAD — ICT Academy</span>
+          <span class="cert-chip">Food Safety (Greencore)</span>
+          <span class="cert-chip">Prompt Engineering — Coursera</span>
+          <span class="cert-chip">AI Fluency — Anthropic ✓</span>
+        </div>
+      </div>
+      <div class="edu-period">Ongoing</div>
+    </div>
+  </div>
+</section>
+
+<!-- EXPERIENCE -->
+<section id="experience">
+  <div class="exp-inner">
+    <div class="exp-header reveal">
+      <div class="eyebrow">// work history</div>
+      <h2>Where I've<br>Made an Impact</h2>
+    </div>
+    <div class="exp-list reveal">
+
+      <div class="exp-item">
+        <div class="exp-meta">
+          <div class="role">Mechanical Engineering Industrial Placement</div>
+          <div class="period">Aug 2025 – Aug 2026</div>
+          <span class="type t-eng">Engineering</span>
+        </div>
+        <div class="exp-details">
+          <div class="company">🏗️ UK-based Engineering Company</div>
+          <ul>
+            <li>Applying theoretical engineering knowledge in practical, real-world tasks alongside experienced professionals.</li>
+            <li>Contributing to team projects, technical documentation, and workflow optimisation.</li>
+            <li>Developing an innovative mindset through collaborative problem-solving in a live engineering environment.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="exp-item">
+        <div class="exp-meta">
+          <div class="role">Ceremony & Gowning Assistant</div>
+          <div class="period">Jun – Jul 2025</div>
+          <span class="type t-event">Events</span>
+        </div>
+        <div class="exp-details">
+          <div class="company">🎓 Graduation Attire · Arden, Staffordshire & Hull Universities</div>
+          <ul>
+            <li>Assisted at three major graduation ceremonies — Arden University, Staffordshire University London, and University of Hull at Connexin Live.</li>
+            <li>Ensured all graduands were correctly gowned and ready under tight event timelines.</li>
+            <li>Developed sales and customer service skills by selling on-stage photographs to graduates post-ceremony.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="exp-item">
+        <div class="exp-meta">
+          <div class="role">International Student Ambassador</div>
+          <div class="period">Apr – Jul 2025</div>
+          <span class="type t-vol">Representation</span>
+        </div>
+        <div class="exp-details">
+          <div class="company">🌐 University of Hull International · Part-time</div>
+          <ul>
+            <li>Represented the University of Hull to prospective and current international students.</li>
+            <li>Developed public communication confidence, engaging and directing unfamiliar audiences with clarity.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="exp-item">
+        <div class="exp-meta">
+          <div class="role">Factory Operative</div>
+          <div class="period">Jun 2024 – Oct 2025</div>
+          <span class="type t-eng">Operations</span>
+        </div>
+        <div class="exp-details">
+          <div class="company">🏭 Greencore · Selby, UK</div>
+          <ul>
+            <li>Worked across packaging, raw ingredient preparation, food prep, and hygiene departments in a high-volume factory.</li>
+            <li>Maintained strict quality control, removing defective products and upholding food safety standards.</li>
+            <li>Completed in-house food safety training covering hygiene, hazard identification, and contamination prevention.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="exp-item">
+        <div class="exp-meta">
+          <div class="role">Graduation Assistant & Photographer Trainee</div>
+          <div class="period">Mar 2024 – Jul 2025</div>
+          <span class="type t-creative">Creative</span>
+        </div>
+        <div class="exp-details">
+          <div class="company">📷 Tempest Photography · Sheffield, UK</div>
+          <ul>
+            <li>Supported multiple graduation events across Jul 2024, Jan 2025, and Jul 2025 — liaising professionally with hundreds of graduands.</li>
+            <li>Received hands-on training in image composition, lighting techniques, studio operations, and client coordination.</li>
+            <li>Gained experience in digital content creation and post-processing workflows.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="exp-item">
+        <div class="exp-meta">
+          <div class="role">Student Representative</div>
+          <div class="period">2024</div>
+          <span class="type t-vol">Volunteering</span>
+        </div>
+        <div class="exp-details">
+          <div class="company">🎓 University of Hull</div>
+          <ul>
+            <li>Advocated for student engagement and provided feedback at faculty level.</li>
+            <li>Acted as a liaison between students and university staff to raise concerns and improve the student experience.</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- SKILLS -->
+<section id="skills">
+  <div class="skills-inner">
+    <div class="skills-top reveal">
+      <div class="skills-heading">
+        <div style="font-size:.72rem;color:var(--cyan);letter-spacing:.2em;text-transform:uppercase;margin-bottom:1rem;">// my toolkit</div>
+        <h2>Skills &<br><em>Technologies</em></h2>
+        <p style="margin-top:1rem;">A multidisciplinary toolkit built across engineering, digital tools, and creative media — constantly expanding.</p>
+      </div>
+      <div class="sk-groups">
+        <div>
+          <div class="sk-group-label">⚙️ Engineering & Simulation</div>
+          <div class="sk-row">
+            <span class="sk sk-a">MATLAB</span>
+            <span class="sk sk-a">Simulink</span>
+            <span class="sk sk-a">C++</span>
+            <span class="sk sk-a">AutoCAD</span>
+            <span class="sk sk-a">SolidWorks</span>
+            <span class="sk sk-a">Autodesk Inventor</span>
+          </div>
+        </div>
+        <div>
+          <div class="sk-group-label">📸 Creative & Digital</div>
+          <div class="sk-row">
+            <span class="sk sk-b">iPhone Cinematography</span>
+            <span class="sk sk-b">Video Editing</span>
+            <span class="sk sk-b">Photo Editing</span>
+            <span class="sk sk-b">Studio Lighting</span>
+          </div>
+        </div>
+        <div>
+          <div class="sk-group-label">💼 Productivity & Professional</div>
+          <div class="sk-row">
+            <span class="sk sk-d">Microsoft Office</span>
+            <span class="sk sk-d">Technical Documentation</span>
+            <span class="sk sk-e">IOSH Safety</span>
+            <span class="sk sk-e">Food Safety</span>
+            <span class="sk sk-c">Prompt Engineering</span>
+            <span class="sk sk-c">AI Fluency</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section id="projects">
+  <div class="proj-inner">
+    <div class="proj-header reveal">
+      <div class="eyebrow">// what I've built & explored</div>
+      <h2>Featured<br><em>Projects</em></h2>
+    </div>
+    <div class="proj-grid reveal">
+
+      <div class="proj-card featured">
+        <div class="proj-banner pb1">⚙️</div>
+        <div class="proj-num">01</div>
+        <div class="proj-info">
+          <h3>Engineering Design Project — CAD & Simulation</h3>
+          <p>A university engineering design project involving 3D modelling, structural analysis, and simulation. Designed and iterated a component using SolidWorks and validated performance via MATLAB simulation, applying real-world engineering constraints.</p>
+          <div class="proj-stack">
+            <span class="proj-tag pt-a">SolidWorks</span>
+            <span class="proj-tag pt-a">MATLAB</span>
+            <span class="proj-tag pt-b">Autodesk Inventor</span>
+            <span class="proj-tag pt-c">Technical Report</span>
+          </div>
+          <div class="proj-links">
+            <a href="#" class="proj-link">📄 View Report</a>
+            <a href="#" class="proj-link">🔗 Details</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="proj-card">
+        <div class="proj-banner pb2">📷</div>
+        <div class="proj-num">02</div>
+        <div class="proj-info">
+          <h3>Commercial Photography & Visual Storytelling</h3>
+          <p>Trained in studio operations, lighting, and composition at Tempest Photography. Combined with iPhone cinematography skills to create compelling visual content across events and personal creative projects.</p>
+          <div class="proj-stack">
+            <span class="proj-tag pt-b">iPhone Cinema</span>
+            <span class="proj-tag pt-b">Lighting</span>
+            <span class="proj-tag pt-c">Post-Processing</span>
+          </div>
+          <div class="proj-links">
+            <a href="#" class="proj-link">🔗 View Work</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="proj-card">
+        <div class="proj-banner pb3">🤖</div>
+        <div class="proj-num">03</div>
+        <div class="proj-info">
+          <h3>AI & Digital Exploration</h3>
+          <p>Completed Anthropic's AI Fluency and Coursera's Prompt Engineering certifications. Actively exploring how AI tools intersect with engineering workflows, digital content creation, and productivity systems.</p>
+          <div class="proj-stack">
+            <span class="proj-tag pt-a">Prompt Engineering</span>
+            <span class="proj-tag pt-a">AI Fluency</span>
+            <span class="proj-tag pt-c">Digital Tools</span>
+          </div>
+          <div class="proj-links">
+            <a href="#" class="proj-link">📜 See Certs</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="contact-inner">
+    <div class="eyebrow">// let's connect</div>
+    <h2>Let's Build<br>Something<br><span class="accent">Together</span></h2>
+    <p>Whether you have an opportunity, a collaboration, or just want to say hello — I'm always open. Let's make something worth talking about.</p>
+    <div class="contact-links">
+      <a href="mailto:weyinmia22@gmail.com" class="contact-pill">📧 weyinmia22@gmail.com</a>
+      <a href="https://linkedin.com/in/oritseweyinmi-agbaga-he-him-5a5548274" target="_blank" class="contact-pill">💼 LinkedIn</a>
+      <a href="tel:07443010513" class="contact-pill">📞 07443 010513</a>
+      <a href="#" class="contact-pill">📄 Download CV</a>
+    </div>
+    <div class="contact-form reveal">
+      <div><label class="cf-label">Name</label><input class="cf-input" type="text" placeholder="Your name"></div>
+      <div><label class="cf-label">Email</label><input class="cf-input" type="email" placeholder="your@email.com"></div>
+      <div class="cf-full"><label class="cf-label">Subject</label><input class="cf-input" type="text" placeholder="Job Opportunity / Collaboration / Project Idea"></div>
+      <div class="cf-full"><label class="cf-label">Message</label><textarea class="cf-input" placeholder="Tell me about your opportunity or idea..."></textarea></div>
+      <div class="cf-full"><button class="btn-glitch" style="border:none;cursor:none;width:100%;text-align:center;" onclick="alert('✅ Message ready! Connect to EmailJS or a backend to go live.')">Send Message →</button></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-logo">OA.</div>
+  <p>Built with passion · <span style="color:var(--cyan)">Oritseweyinmi Agbaga</span> © 2025</p>
+  <p style="color:var(--muted);font-size:.75rem;">Sheffield, UK · from Lagos, NG 🇳🇬</p>
+</footer>
+
+<script>
+// CURSOR
+const cur=document.getElementById('cursor'),ring=document.getElementById('cursor-ring');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx-6+'px';cur.style.top=my-6+'px';});
+(function anim(){rx+=(mx-rx-20)*.12;ry+=(my-ry-20)*.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(anim);})();
+document.querySelectorAll('a,button,.sk,.proj-card,.edu-card,.exp-item').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{cur.style.transform='scale(2)';cur.style.background='var(--purple)';ring.style.transform='scale(1.5)';});
+  el.addEventListener('mouseleave',()=>{cur.style.transform='scale(1)';cur.style.background='var(--cyan)';ring.style.transform='scale(1)';});
+});
+
+// MARQUEE
+const items=['Mechanical Engineering','University of Hull','Sheffield UK','Lagos Nigeria','SolidWorks · AutoCAD','MATLAB · Simulink','Industrial Placement','iPhone Cinematography','IOSH Certified','AI Fluency · Anthropic'];
+const track=document.getElementById('marquee');
+let h='';
+for(let i=0;i<3;i++) items.forEach(t=>{h+=`<span class="marquee-item">${t}<span style="opacity:.4"> ✦ </span></span>`;});
+track.innerHTML=h;
+
+// REVEAL
+const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in');});},{threshold:.1});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+</script>
+</body>
+</html>

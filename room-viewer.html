@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Room 3D Image Viewer</title>
+  <style>
+    :root {
+      --bg: #070912;
+      --card: #111625;
+      --card-soft: #171e31;
+      --text: #e9eefc;
+      --muted: #90a0c0;
+      --accent: #4cc9f0;
+      --accent-2: #9d4edd;
+      --ring: rgba(76, 201, 240, 0.35);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, "Segoe UI", Roboto, system-ui, sans-serif;
+      color: var(--text);
+      background: radial-gradient(circle at 20% 10%, #1a1f35 0%, var(--bg) 45%), var(--bg);
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      width: min(1100px, 92vw);
+      margin: 1.4rem auto 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .home-link {
+      color: var(--muted);
+      text-decoration: none;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      padding: 0.55rem 0.9rem;
+      border-radius: 999px;
+      transition: 0.25s;
+      font-size: 0.88rem;
+    }
+
+    .home-link:hover { color: var(--text); border-color: var(--accent); }
+
+    main {
+      flex: 1;
+      width: min(1100px, 92vw);
+      margin: 1rem auto 2rem;
+      display: grid;
+      gap: 1.5rem;
+      grid-template-columns: 1fr;
+    }
+
+    .controls,
+    .viewer-card {
+      background: linear-gradient(160deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      border-radius: 20px;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 16px 60px rgba(0, 0, 0, 0.38);
+    }
+
+    .controls {
+      padding: 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .title-wrap h1 { margin: 0 0 0.2rem; font-size: clamp(1.5rem, 4vw, 2.2rem); }
+    .title-wrap p { margin: 0; color: var(--muted); font-size: 0.94rem; }
+
+    .file-input {
+      appearance: none;
+      border: 1px dashed rgba(255,255,255,0.28);
+      color: var(--text);
+      padding: 0.7rem 0.9rem;
+      border-radius: 12px;
+      background: var(--card-soft);
+      cursor: pointer;
+      width: min(340px, 100%);
+    }
+
+    .btn {
+      border: 1px solid rgba(255,255,255,0.2);
+      color: var(--text);
+      background: transparent;
+      border-radius: 12px;
+      padding: 0.7rem 1rem;
+      cursor: pointer;
+      transition: 0.2s;
+      font-weight: 600;
+    }
+
+    .btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    .viewer-card {
+      padding: clamp(1rem, 2.8vw, 1.5rem);
+      display: grid;
+      place-items: center;
+      min-height: 55vh;
+      perspective: 1100px;
+      transform-style: preserve-3d;
+    }
+
+    .tilt-stage {
+      width: 100%;
+      max-width: 920px;
+      border-radius: 18px;
+      position: relative;
+      overflow: hidden;
+      transform-style: preserve-3d;
+      transition: transform 0.12s ease-out;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: var(--card);
+    }
+
+    .tilt-stage img {
+      width: 100%;
+      height: min(70vh, 620px);
+      object-fit: cover;
+      display: block;
+      transform: translateZ(30px) scale(1.03);
+      transition: transform 0.12s ease-out;
+    }
+
+    .shine {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), rgba(255,255,255,0.22), transparent 48%);
+      pointer-events: none;
+      mix-blend-mode: screen;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .placeholder {
+      text-align: center;
+      color: var(--muted);
+      padding: 3rem 1rem;
+      font-size: 1rem;
+    }
+
+    .viewer-card.active .shine { opacity: 1; }
+
+    @media (max-width: 780px) {
+      .controls { flex-direction: column; align-items: stretch; }
+      .tilt-stage img { height: min(55vh, 460px); }
+      header { margin-top: 1rem; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="title-wrap">
+      <h1>Room 3D Image Viewer</h1>
+      <p>Upload an image and move your mouse (or finger) to see a fake 3D tilt/parallax preview.</p>
+    </div>
+    <a class="home-link" href="index.html">← Back to Portfolio</a>
+  </header>
+
+  <main>
+    <section class="controls">
+      <input id="imageInput" class="file-input" type="file" accept="image/*" />
+      <button id="resetBtn" class="btn" type="button">Reset</button>
+    </section>
+
+    <section id="viewerCard" class="viewer-card">
+      <div id="tiltStage" class="tilt-stage" aria-live="polite">
+        <div id="placeholder" class="placeholder">No image selected yet. Choose an image file to preview it locally in your browser.</div>
+        <img id="previewImage" alt="Uploaded image preview" hidden />
+        <div class="shine"></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const imageInput = document.getElementById('imageInput');
+    const resetBtn = document.getElementById('resetBtn');
+    const previewImage = document.getElementById('previewImage');
+    const placeholder = document.getElementById('placeholder');
+    const viewerCard = document.getElementById('viewerCard');
+    const tiltStage = document.getElementById('tiltStage');
+
+    function resetViewer() {
+      previewImage.hidden = true;
+      previewImage.removeAttribute('src');
+      placeholder.hidden = false;
+      viewerCard.classList.remove('active');
+      tiltStage.style.transform = 'rotateX(0deg) rotateY(0deg)';
+      previewImage.style.transform = 'translateZ(30px) scale(1.03)';
+      tiltStage.style.setProperty('--x', '50%');
+      tiltStage.style.setProperty('--y', '50%');
+      imageInput.value = '';
+    }
+
+    imageInput.addEventListener('change', (event) => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+      if (!file.type.startsWith('image/')) {
+        alert('Please select an image file.');
+        resetViewer();
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        previewImage.src = e.target?.result;
+        previewImage.hidden = false;
+        placeholder.hidden = true;
+        viewerCard.classList.add('active');
+      };
+      reader.readAsDataURL(file);
+    });
+
+    function applyTilt(clientX, clientY) {
+      if (previewImage.hidden) return;
+      const rect = tiltStage.getBoundingClientRect();
+      const x = clientX - rect.left;
+      const y = clientY - rect.top;
+      const px = Math.max(0, Math.min(1, x / rect.width));
+      const py = Math.max(0, Math.min(1, y / rect.height));
+      const rotateY = (px - 0.5) * 16;
+      const rotateX = (0.5 - py) * 16;
+
+      tiltStage.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+      previewImage.style.transform = `translateZ(30px) scale(1.03) translate(${(px - 0.5) * 8}px, ${(py - 0.5) * 8}px)`;
+      tiltStage.style.setProperty('--x', `${px * 100}%`);
+      tiltStage.style.setProperty('--y', `${py * 100}%`);
+    }
+
+    tiltStage.addEventListener('mousemove', (e) => applyTilt(e.clientX, e.clientY));
+    tiltStage.addEventListener('touchmove', (e) => {
+      const touch = e.touches[0];
+      if (touch) applyTilt(touch.clientX, touch.clientY);
+    }, { passive: true });
+
+    tiltStage.addEventListener('mouseleave', () => {
+      tiltStage.style.transform = 'rotateX(0deg) rotateY(0deg)';
+      previewImage.style.transform = 'translateZ(30px) scale(1.03)';
+      tiltStage.style.setProperty('--x', '50%');
+      tiltStage.style.setProperty('--y', '50%');
+    });
+
+    resetBtn.addEventListener('click', resetViewer);
+  </script>
+</body>
+</html>

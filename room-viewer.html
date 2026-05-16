@@ -12,8 +12,6 @@
       --text: #e9eefc;
       --muted: #90a0c0;
       --accent: #4cc9f0;
-      --accent-2: #9d4edd;
-      --ring: rgba(76, 201, 240, 0.35);
     }
 
     * { box-sizing: border-box; }
@@ -53,9 +51,6 @@
       flex: 1;
       width: min(1100px, 92vw);
       margin: 1rem auto 2rem;
-      display: grid;
-      gap: 1.5rem;
-      grid-template-columns: 1fr;
     }
 
     .viewer-panel {
@@ -64,18 +59,20 @@
       border-radius: 20px;
       backdrop-filter: blur(8px);
       box-shadow: 0 16px 60px rgba(0, 0, 0, 0.38);
-    }
-
-    .controls {
-      padding: 1rem;
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 0.85rem;
+      padding: clamp(1rem, 2.8vw, 1.5rem);
+      display: grid;
+      gap: 1rem;
     }
 
     .title-wrap h1 { margin: 0 0 0.2rem; font-size: clamp(1.5rem, 4vw, 2.2rem); }
     .title-wrap p { margin: 0; color: var(--muted); font-size: 0.94rem; }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.7rem;
+    }
 
     .file-input {
       appearance: none;
@@ -101,13 +98,12 @@
 
     .btn:hover { border-color: var(--accent); color: var(--accent); }
 
-    .viewer-panel {
-      padding: clamp(1rem, 2.8vw, 1.5rem);
-      display: grid;
-      place-items: center;
+    .viewer-stage {
       min-height: 55vh;
       perspective: 1100px;
       transform-style: preserve-3d;
+      display: grid;
+      place-items: center;
     }
 
     .tilt-stage {
@@ -120,15 +116,22 @@
       transition: transform 0.12s ease-out;
       border: 1px solid rgba(255,255,255,0.12);
       background: var(--card);
+      touch-action: none;
     }
 
+    /*
+      We pan/zoom by changing transform-origin + scale on this image.
+      transform-origin is where the zoom focuses, based on cursor/touch position.
+    */
     .tilt-stage img {
       width: 100%;
       height: min(70vh, 620px);
       object-fit: cover;
       display: block;
-      transform: translateZ(30px) scale(1.03);
+      transform: translateZ(30px) scale(1);
+      transform-origin: 50% 50%;
       transition: transform 0.12s ease-out;
+      will-change: transform, transform-origin;
     }
 
     .shine {
@@ -141,6 +144,8 @@
       transition: opacity 0.2s;
     }
 
+    .viewer-panel.active .shine { opacity: 1; }
+
     .placeholder {
       text-align: center;
       color: var(--muted);
@@ -148,7 +153,11 @@
       font-size: 1rem;
     }
 
-    .viewer-panel.active .shine { opacity: 1; }
+    .zoom-readout {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-left: 0.35rem;
+    }
 
     @media (max-width: 780px) {
       .controls { flex-direction: column; align-items: stretch; }
@@ -161,7 +170,7 @@
   <header>
     <div class="title-wrap">
       <h1>Room 3D Image Viewer</h1>
-      <p>Upload an image and move your mouse (or finger) to see a fake 3D tilt/parallax preview.</p>
+      <p>Upload an image, then use tilt + zoom controls to explore details.</p>
     </div>
     <a class="home-link" href="index.html">← Back to Portfolio</a>
   </header>
@@ -170,34 +179,125 @@
     <section id="viewerPanel" class="viewer-panel">
       <div class="controls">
         <input id="imageInput" class="file-input" type="file" accept="image/*" />
-        <button id="resetBtn" class="btn" type="button">Reset</button>
+        <button id="zoomInBtn" class="btn" type="button">Zoom In</button>
+        <button id="zoomOutBtn" class="btn" type="button">Zoom Out</button>
+        <button id="resetViewBtn" class="btn" type="button">Reset View</button>
+        <span id="zoomReadout" class="zoom-readout">Zoom: 1.00x</span>
       </div>
-      <div id="tiltStage" class="tilt-stage" aria-live="polite">
-        <div id="placeholder" class="placeholder">No image selected yet. Choose an image file to preview it locally in your browser.</div>
-        <img id="previewImage" alt="Uploaded image preview" hidden />
-        <div class="shine"></div>
-      </div>
-        </section>
+
+      <section id="viewerStage" class="viewer-stage">
+        <div id="tiltStage" class="tilt-stage" aria-live="polite">
+          <div id="placeholder" class="placeholder">No image selected yet. Choose an image file to preview it locally in your browser.</div>
+          <img id="previewImage" alt="Uploaded image preview" hidden />
+          <div class="shine"></div>
+        </div>
+      </section>
+    </section>
   </main>
 
   <script>
     const imageInput = document.getElementById('imageInput');
-    const resetBtn = document.getElementById('resetBtn');
+    const zoomInBtn = document.getElementById('zoomInBtn');
+    const zoomOutBtn = document.getElementById('zoomOutBtn');
+    const resetViewBtn = document.getElementById('resetViewBtn');
+    const zoomReadout = document.getElementById('zoomReadout');
     const previewImage = document.getElementById('previewImage');
     const placeholder = document.getElementById('placeholder');
     const viewerPanel = document.getElementById('viewerPanel');
     const tiltStage = document.getElementById('tiltStage');
 
-    function resetViewer() {
+    // Zoom state values.
+    let zoomLevel = 1;
+    const MIN_ZOOM = 1;
+    const MAX_ZOOM = 3;
+    const ZOOM_STEP = 0.2;
+
+    // Current pointer focus in percentages (0..100).
+    // This is the key to "zoom any area" behavior.
+    let focusX = 50;
+    let focusY = 50;
+
+    function clamp(value, min, max) {
+      return Math.max(min, Math.min(max, value));
+    }
+
+    function updateZoomReadout() {
+      zoomReadout.textContent = `Zoom: ${zoomLevel.toFixed(2)}x`;
+    }
+
+    /*
+      Applies both tilt and zoom/pan together.
+      - rotateX/rotateY = fake 3D tilt
+      - transform-origin = area to zoom into (pointer position)
+      - scale(zoomLevel) = zoom amount
+      - translate(...) = small parallax movement for depth feeling
+    */
+    function renderTransforms(px = 0.5, py = 0.5) {
+      const rotateY = (px - 0.5) * 16;
+      const rotateX = (0.5 - py) * 16;
+
+      tiltStage.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+      previewImage.style.transformOrigin = `${focusX}% ${focusY}%`;
+      previewImage.style.transform = `translateZ(30px) scale(${zoomLevel}) translate(${(px - 0.5) * 8}px, ${(py - 0.5) * 8}px)`;
+      tiltStage.style.setProperty('--x', `${px * 100}%`);
+      tiltStage.style.setProperty('--y', `${py * 100}%`);
+    }
+
+    function normalizePointer(clientX, clientY) {
+      const rect = tiltStage.getBoundingClientRect();
+      const x = clientX - rect.left;
+      const y = clientY - rect.top;
+      const px = clamp(x / rect.width, 0, 1);
+      const py = clamp(y / rect.height, 0, 1);
+      return { px, py };
+    }
+
+    function applyPointer(clientX, clientY) {
+      if (previewImage.hidden) return;
+
+      const { px, py } = normalizePointer(clientX, clientY);
+
+      // Update focus point so zoom follows cursor/finger area.
+      focusX = px * 100;
+      focusY = py * 100;
+
+      // Re-render with latest pointer and focus.
+      renderTransforms(px, py);
+    }
+
+    function resetView() {
+      zoomLevel = 1;
+      focusX = 50;
+      focusY = 50;
+      tiltStage.style.transform = 'rotateX(0deg) rotateY(0deg)';
+      previewImage.style.transformOrigin = '50% 50%';
+      previewImage.style.transform = 'translateZ(30px) scale(1)';
+      tiltStage.style.setProperty('--x', '50%');
+      tiltStage.style.setProperty('--y', '50%');
+      updateZoomReadout();
+    }
+
+    function resetAll() {
       previewImage.hidden = true;
       previewImage.removeAttribute('src');
       placeholder.hidden = false;
       viewerPanel.classList.remove('active');
-      tiltStage.style.transform = 'rotateX(0deg) rotateY(0deg)';
-      previewImage.style.transform = 'translateZ(30px) scale(1.03)';
-      tiltStage.style.setProperty('--x', '50%');
-      tiltStage.style.setProperty('--y', '50%');
       imageInput.value = '';
+      resetView();
+    }
+
+    function zoomIn() {
+      if (previewImage.hidden) return;
+      zoomLevel = clamp(zoomLevel + ZOOM_STEP, MIN_ZOOM, MAX_ZOOM);
+      renderTransforms(focusX / 100, focusY / 100);
+      updateZoomReadout();
+    }
+
+    function zoomOut() {
+      if (previewImage.hidden) return;
+      zoomLevel = clamp(zoomLevel - ZOOM_STEP, MIN_ZOOM, MAX_ZOOM);
+      renderTransforms(focusX / 100, focusY / 100);
+      updateZoomReadout();
     }
 
     imageInput.addEventListener('change', (event) => {
@@ -205,7 +305,7 @@
       if (!file) return;
       if (!file.type.startsWith('image/')) {
         alert('Please select an image file.');
-        resetViewer();
+        resetAll();
         return;
       }
 
@@ -215,40 +315,31 @@
         previewImage.hidden = false;
         placeholder.hidden = true;
         viewerPanel.classList.add('active');
+        resetView();
       };
       reader.readAsDataURL(file);
     });
 
-    function applyTilt(clientX, clientY) {
-      if (previewImage.hidden) return;
-      const rect = tiltStage.getBoundingClientRect();
-      const x = clientX - rect.left;
-      const y = clientY - rect.top;
-      const px = Math.max(0, Math.min(1, x / rect.width));
-      const py = Math.max(0, Math.min(1, y / rect.height));
-      const rotateY = (px - 0.5) * 16;
-      const rotateX = (0.5 - py) * 16;
+    // Desktop mouse interactions.
+    tiltStage.addEventListener('mousemove', (e) => applyPointer(e.clientX, e.clientY));
 
-      tiltStage.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-      previewImage.style.transform = `translateZ(30px) scale(1.03) translate(${(px - 0.5) * 8}px, ${(py - 0.5) * 8}px)`;
-      tiltStage.style.setProperty('--x', `${px * 100}%`);
-      tiltStage.style.setProperty('--y', `${py * 100}%`);
-    }
-
-    tiltStage.addEventListener('mousemove', (e) => applyTilt(e.clientX, e.clientY));
+    // Mobile touch interactions.
     tiltStage.addEventListener('touchmove', (e) => {
       const touch = e.touches[0];
-      if (touch) applyTilt(touch.clientX, touch.clientY);
+      if (touch) applyPointer(touch.clientX, touch.clientY);
     }, { passive: true });
 
+    // Return tilt to neutral when leaving area, but keep zoom state.
     tiltStage.addEventListener('mouseleave', () => {
-      tiltStage.style.transform = 'rotateX(0deg) rotateY(0deg)';
-      previewImage.style.transform = 'translateZ(30px) scale(1.03)';
-      tiltStage.style.setProperty('--x', '50%');
-      tiltStage.style.setProperty('--y', '50%');
+      if (previewImage.hidden) return;
+      renderTransforms(0.5, 0.5);
     });
 
-    resetBtn.addEventListener('click', resetViewer);
+    zoomInBtn.addEventListener('click', zoomIn);
+    zoomOutBtn.addEventListener('click', zoomOut);
+    resetViewBtn.addEventListener('click', resetView);
+
+    updateZoomReadout();
   </script>
 </body>
 </html>

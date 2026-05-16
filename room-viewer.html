@@ -58,8 +58,7 @@
       grid-template-columns: 1fr;
     }
 
-    .controls,
-    .viewer-card {
+    .viewer-panel {
       background: linear-gradient(160deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
       border: 1px solid rgba(255, 255, 255, 0.09);
       border-radius: 20px;
@@ -102,7 +101,7 @@
 
     .btn:hover { border-color: var(--accent); color: var(--accent); }
 
-    .viewer-card {
+    .viewer-panel {
       padding: clamp(1rem, 2.8vw, 1.5rem);
       display: grid;
       place-items: center;
@@ -149,7 +148,7 @@
       font-size: 1rem;
     }
 
-    .viewer-card.active .shine { opacity: 1; }
+    .viewer-panel.active .shine { opacity: 1; }
 
     @media (max-width: 780px) {
       .controls { flex-direction: column; align-items: stretch; }
@@ -168,18 +167,17 @@
   </header>
 
   <main>
-    <section class="controls">
-      <input id="imageInput" class="file-input" type="file" accept="image/*" />
-      <button id="resetBtn" class="btn" type="button">Reset</button>
-    </section>
-
-    <section id="viewerCard" class="viewer-card">
+    <section id="viewerPanel" class="viewer-panel">
+      <div class="controls">
+        <input id="imageInput" class="file-input" type="file" accept="image/*" />
+        <button id="resetBtn" class="btn" type="button">Reset</button>
+      </div>
       <div id="tiltStage" class="tilt-stage" aria-live="polite">
         <div id="placeholder" class="placeholder">No image selected yet. Choose an image file to preview it locally in your browser.</div>
         <img id="previewImage" alt="Uploaded image preview" hidden />
         <div class="shine"></div>
       </div>
-    </section>
+        </section>
   </main>
 
   <script>
@@ -187,14 +185,14 @@
     const resetBtn = document.getElementById('resetBtn');
     const previewImage = document.getElementById('previewImage');
     const placeholder = document.getElementById('placeholder');
-    const viewerCard = document.getElementById('viewerCard');
+    const viewerPanel = document.getElementById('viewerPanel');
     const tiltStage = document.getElementById('tiltStage');
 
     function resetViewer() {
       previewImage.hidden = true;
       previewImage.removeAttribute('src');
       placeholder.hidden = false;
-      viewerCard.classList.remove('active');
+      viewerPanel.classList.remove('active');
       tiltStage.style.transform = 'rotateX(0deg) rotateY(0deg)';
       previewImage.style.transform = 'translateZ(30px) scale(1.03)';
       tiltStage.style.setProperty('--x', '50%');
@@ -216,7 +214,7 @@
         previewImage.src = e.target?.result;
         previewImage.hidden = false;
         placeholder.hidden = true;
-        viewerCard.classList.add('active');
+        viewerPanel.classList.add('active');
       };
       reader.readAsDataURL(file);
     });
